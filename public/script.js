@@ -1,56 +1,47 @@
-const API_URL = "http://localhost:3000/api/todos";
+const API_URL = "/api/todos";
 
-// Get all tasks
-async function getTasks() {
-  try {
-    const response = await fetch(API_URL);
-    const tasks = await response.json();
+async function fetchTodos() {
+  const res = await fetch(API_URL);
+  const todos = await res.json();
 
-    const list = document.getElementById("taskList");
-    list.innerHTML = "";
+  const list = document.getElementById("todoList");
+  list.innerHTML = "";
 
-    tasks.forEach(task => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        ${task.text}
-        <button id="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
-      `;
-      list.appendChild(li);
-    });
-  } catch (error) {
-    console.error("Error fetching tasks:", error);
-    alert("Failed to load tasks");
-  }
+  todos.forEach(todo => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${todo.text}
+      <button onclick="deleteTodo(${todo.id})">❌</button>
+    `;
+    list.appendChild(li);
+  });
 }
 
-// Add task
-async function addTask() {
+async function addTodo() {
   const input = document.getElementById("todoInput");
   const text = input.value;
 
-  if (!text) {
-    alert("Enter a task");
-    return;
-  }
+  if (text === "") return alert("Enter a task");
 
   await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({ text })
   });
 
   input.value = "";
-  getTasks();
+  fetchTodos();
 }
 
-// Delete task
-async function deleteTask(id) {
+async function deleteTodo(id) {
   await fetch(`${API_URL}/${id}`, {
     method: "DELETE"
   });
 
-  getTasks();
+  fetchTodos();
 }
 
-// Load tasks automatically when page opens
-window.onload = getTasks;
+// Load todos on page load
+fetchTodos();
